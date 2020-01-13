@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from plotly.graph_objs import Bar, Heatmap
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -26,11 +26,11 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/Disaster_Response.db')
+df = pd.read_sql_table('Disaster_Response', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/model.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -42,7 +42,21 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+
+
+    # message length by Character
+    message_lengths = df.message.str.len()
+    # 10 bins counts of message length within 4th quartile
+    length_percents=(message_lengths[message_lengths<=message_lengths.quantile(.99)].value_counts(normalize=True,bins=10).round(decimals=4).sort_index())*100
+    # generate x-ticks base on Serise.value_counts.index for plotly
+    xticks = []
+    for idx in length_percents.index:
+        xticks.append(str(int(idx.left))+'-'+str(int(idx.right)))
+    # correlation between labels
+    labels = df.loc[:,'related':]
+    cor = labels.corr()
     
+
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -62,6 +76,39 @@ def index():
                 'xaxis': {
                     'title': "Genre"
                 }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=xticks,
+                    y=length_percents.values
+                    )
+            ],
+
+            'layout': {
+                'title': 'Message Length by Character',
+                
+                'yaxis': {
+                    'title': "Percentage"
+                },
+                'xaxis': {
+                    'title': "Message Length"
+                }
+            }
+        },
+        {
+            'data': [
+                Heatmap(
+                    z=cor.values, 
+                    x=cor.columns,
+                    y=cor.index
+                )
+            ],
+
+            'layout': {
+                'title': 'Heatmap of Labels',
+                'height': 1100
             }
         }
     ]
