@@ -5,7 +5,9 @@ from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
 	'''
-		Load messages.csv and categories.csv and merge them into a pandas.DataFrame.
+	Loads messages.csv and categories.csv and merge them into a pandas.DataFrame.
+
+	Returns a dataframe
     '''
 
 	messages = pd.read_csv(messages_filepath)
@@ -17,10 +19,12 @@ def load_data(messages_filepath, categories_filepath):
 
 def clean_data(df):
 	"""
-		Clean data for:
-			separating lales into individual columns and fixing the label names
-			eliminating duplicated rows
-			eliminating rows with conflicting labels
+	Cleans data for:
+		separating lales into individual columns and fixing the label names
+		eliminating duplicated rows
+		eliminating rows with conflicting labels
+
+	Returns a dataframe contains cleaned data
 
 	"""
 
@@ -54,7 +58,7 @@ def clean_data(df):
 
 def save_data(df, database_filename):
 	"""
-		Save data into sqlite database
+	Saves data into sqlite database
 	"""
 	engine = create_engine('sqlite:///' + database_filename)
 	df.to_sql('DisasterResponse', engine, index=False, if_exists='replace')
