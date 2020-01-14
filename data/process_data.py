@@ -1,16 +1,63 @@
 import sys
+import pandas as pd
+from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
-    pass
+	'''
+		Load messages.csv and categories.csv and merge them into a pandas.DataFrame.
+    '''
+
+	messages = pd.read_csv(messages_filepath)
+	categories = pd.read_csv(categories_filepath)
+	df = messages.merge(categories,on='id')
+
+	return df
 
 
 def clean_data(df):
-    pass
+	"""
+		Clean data for:
+			separating lales into individual columns and fixing the label names
+			eliminating duplicated rows
+			eliminating rows with conflicting labels
+
+	"""
+
+	# create a dataframe of the 36 individual category columns
+	categories_fixed = df.categories.str.split(';',expand=True)
+
+   # select the first row of the categories dataframe
+	row = categories_fixed.iloc[0]
+
+	# use this row to extract a list of new column names for categories
+	category_colnames = row.str.slice(stop=-2).values
+
+	# rename the columns of `categories_fixed`
+	categories_fixed.columns = category_colnames
+
+	# concatenate the original dataframe with the new `categories_fixed` dataframe
+	df = pd.concat([df,categories_fixed],axis=1)
+
+	# groupby twice to find missmatched rows via the ids 
+	df_groupby_idx2 = pd.DataFrame(pd.DataFrame(df.groupby(['id','categories']).message.count()).reset_index().groupby('id').message.count())
+	miss_matched_ids = df_groupby_idx2[df_groupby_idx2.message!=1].index.values
+
+	# drop duplicates
+	df.drop_duplicates(inplace=True)
+
+	# drop mismatched ids/instances
+	df = df[~df.id.isin(miss_matched_ids)]
+
+	return df
 
 
 def save_data(df, database_filename):
-    pass  
+	"""
+		Save data into sqlite database
+	"""
+	engine = create_engine('sqlite:///' + database_filename)
+	df.to_sql('DisasterResponse', engine, index=False, if_exists='replace')
 
 
 def main():
