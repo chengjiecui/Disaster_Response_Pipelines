@@ -40,6 +40,15 @@ def clean_data(df):
 	# rename the columns of `categories_fixed`
 	categories_fixed.columns = category_colnames
 
+	# keep only the last character of each string (the 1 or 0).
+	for column in categories_fixed:
+		# set each value to be the last character of the string
+		categories_fixed[column] = categories_fixed[column].str.slice(start=-1)
+
+		# convert column from string to numeric
+		categories_fixed[column] = categories_fixed[column].apply(int)
+
+
 	# concatenate the original dataframe with the new `categories_fixed` dataframe
 	df = pd.concat([df,categories_fixed],axis=1)
 
@@ -52,6 +61,10 @@ def clean_data(df):
 
 	# drop mismatched ids/instances
 	df = df[~df.id.isin(miss_matched_ids)]
+
+	# some labels are not binary / child_alone [0] / related [1 0 2]
+	for col in df.loc[:,'related':].columns:
+ 		df = df[df[col]<2]
 
 	return df
 
