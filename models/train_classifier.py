@@ -78,12 +78,12 @@ def build_model():
     # set parameters for gird search
     parameters = {
         # 'text__ngram_range': [(1,1),(1,2)],
-        'text__use_idf': (True, False),
-        'clf__estimator__n_estimators': [50,100]
+        # 'text__use_idf': (True, False),
+        'clf__estimator__n_estimators': [3,5,10]
     }
 
     # gird search
-    cv = GridSearchCV(pipeline, param_grid=parameters,return_train_score=True, verbose=3) 
+    cv = GridSearchCV(pipeline, param_grid=parameters, scoring='f1_weighted', return_train_score=True, verbose=3) 
 
     return cv
 
@@ -120,6 +120,7 @@ def main():
         
         print('Training model...')
         model.fit(X_train, Y_train)
+        print(model.best_estimator_)
         
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
