@@ -8,29 +8,30 @@ The project also include a web app where an emergency worker can input a new mes
 Here's the file structure of the project:
 
 - ipynb # code sketches
-|- ETL Pipeline Preparation.ipynb
-|- ML Pipeline Preparation.ipynb 
+    - ETL Pipeline Preparation.ipynb
+    - ML Pipeline Preparation.ipynb 
 
 - app
-| - template
-| |- master.html  # main page of web app
-| |- go.html  # classification result page of web app
-|- run.py  # Flask file that runs app
+    - template
+        - master.html  # main page of web app
+        - go.html  # classification result page of web app
+    - run.py  # Flask file that runs app
 
 - data
-|- disaster_categories.csv  # data to process 
-|- disaster_messages.csv  # data to process
-|- process_data.py  # ETL process
-|- InsertDatabaseName.db   # database to save clean data to
+    - disaster_categories.csv  # data to process 
+    - disaster_messages.csv  # data to process
+    - process_data.py  # ETL process
+    - InsertDatabaseName.db   # database to save clean data to
 
 - models
-|- train_classifier.py # model builder
-|- classifier.pkl  # saved model 
+    - train_classifier.py # model builder
+    - classifier.pkl  # saved model 
 
 - README.md
 
 ### Tools Used
 env: [Anaconda distribution](https://www.anaconda.com/distribution/) of Python 3.7
+
 packages: numpy, pandas, re, sqlalchemy, nltk, sklearn, pickle
 
 ### How to run the project:
